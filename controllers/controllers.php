@@ -1609,7 +1609,7 @@
 				$wallet_balance = $this->coreModel->fetchuserinfo($username) ?? [];
 				
 				return [
-					"data"         => 0,
+					"data"         => round($this->coreModel->calculateTransaction($username, "Airtime Recharge") ?? 0, 2),,
 					"airtime"      => 0,
 					"cable"        => 0,
 					"electricity"  => 0,

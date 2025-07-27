@@ -243,29 +243,43 @@ class CoreModels {
 	  });
 	}
 
-	public function calculateTransaction($username, $type) {
-		// Use a prepared statement to prevent SQL injection
-		$stmt = $this->db->prepare("
-			SELECT SUM(amount) AS total_amount
-			FROM transhistory
-			WHERE username = ? AND description = ?
-			AND MONTH(date) = MONTH(CURRENT_DATE())
-			AND YEAR(date) = YEAR(CURRENT_DATE())
-		");
-
-		$stmt->bind_param('ss', $username, $type);
-		$stmt->execute();
-		$result = $stmt->get_result();
-
-		$totalEarnings = 0;
-
-		if ($row = $result->fetch_assoc()) {
-			$total = $row['total_amount'] ?? 0;
-			$totalEarnings = number_format((float)$total, 2);
+	public function calculateTransaction(string $username, string $type): float 
+	{
+		// Validate inputs
+		if (empty($username) || empty($type)) {
+			return 0.00;
 		}
 
+		// Prepare SQL with LIKE for partial matching
+		$sql = "
+			SELECT COALESCE(SUM(amount), 0) AS total_amount
+			FROM transhistory
+			WHERE username = ? 
+			AND description LIKE CONCAT('%', ?, '%')
+			AND date >= DATE_FORMAT(NOW(), '%Y-%m-01') 
+			AND date < DATE_FORMAT(NOW() + INTERVAL 1 MONTH, '%Y-%m-01')
+		";
+
+		$stmt = $this->db->prepare($sql);
+		if (!$stmt) {
+			error_log("Prepare failed: " . $this->db->error);
+			return 0.00;
+		}
+
+		// Bind parameters (note: type is now used in LIKE)
+		$stmt->bind_param('ss', $username, $type);
+		
+		if (!$stmt->execute()) {
+			error_log("Execute failed: " . $stmt->error);
+			$stmt->close();
+			return 0.00;
+		}
+
+		$result = $stmt->get_result();
+		$row = $result->fetch_assoc();
 		$stmt->close();
-		return $totalEarnings;
+
+		return (float)($row['total_amount'] ?? 0);
 	}
 
 
