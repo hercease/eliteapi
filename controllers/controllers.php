@@ -1987,7 +1987,7 @@
 					// Log without sensitive data
 					$logPost = $_POST;
 					//unset($logPost['bvn'], $logPost['account_number']);
-					error_log("Creating virtual wallet for user: " . json_encode($logPost));
+					
 
 					// Begin DB transaction
 					$this->db->begin_transaction();
@@ -2013,6 +2013,8 @@
 						"account_number" => $input['account_number'],
 						"bank_code" => $input['bank_code']
 					];
+
+					error_log("Creating virtual wallet for user: " . json_encode($params));
 
 					$headers = [
 						"Authorization: Bearer " . PAYSTACK_SECRET_KEY,
