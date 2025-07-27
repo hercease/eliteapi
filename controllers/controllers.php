@@ -1463,7 +1463,7 @@
 						$count = in_array($description, ["Cable Tv", "Airtime Recharge"]) ? 2 : 1;
 
 						$data[] = [
-							'id' => $row['reference'] ?? $row['id'],
+							'id' => $row['id'],
 							'type' => $this->coreModel->extractFirstWords(htmlspecialchars($description), 1),
 							'username' => htmlspecialchars($row['username']),
 							'amount' => (float)$row['amount'],
