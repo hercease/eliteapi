@@ -86,7 +86,7 @@ class CoreModels {
 	}
 
 	public function insertProfit($type, $amount, $date, $network){
-		$stmt = $this->db->prepare("INSERT IGNORE INTO sales_profit (type, amount, date, network) VALUES (?, ?, ?, ?)");
+		$stmt = $this->db->prepare("INSERT IGNORE INTO sales_profits (type, amount, date, network) VALUES (?, ?, ?, ?)");
 		$stmt->bind_param("ssss",$type, $amount, $date, $network);
 		$stmt->execute();
 		$stmt->close();
