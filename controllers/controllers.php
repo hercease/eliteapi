@@ -846,6 +846,8 @@
 					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 60));
 					$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
 					$this->coreModel->insertProfit('Cable', $adminprofit, date("Y-m-d H:i:s"), $network);
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 60), "{$commonData['cable_name']} Cable Transaction bonus", "Bonus from {$commonData['cable_name']} cable transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
+
 
 					if(!empty($sponsor_username)){
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
@@ -885,7 +887,7 @@
 				}
 
 				$description = "Airtime Recharge";
-				$comment = "$network_code Airtime purchase to $phone";
+				$comment = "$network_name Airtime purchase to $phone";
 				$date = date("Y-m-d H:i:s");
 
 				// Prepare commission per API
@@ -970,6 +972,7 @@
 					$this->coreModel->insertProfit('Airtime', $adminprofit, $date, $network_name);
 					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 60));
 					$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 60), "Airtime Transaction bonus", "Bonus from airtime transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 
 					if(!empty($sponsor_username)){
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
@@ -1081,17 +1084,20 @@
 				}
 
 				if ($success) {
+
 					$status = 'successful';
 					$sponsor = $this->coreModel->fetchuserinfo($username);
 					$sponsor_username = $sponsor['sponsor'] ?? '';
 					$this->coreModel->deductWallet($amount, $username);
 					$this->coreModel->insertProfit('Data', $adminprofit, $date, $network_name);
 					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($com, 60));
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($com, 60), "{$network_name} Data Transaction bonus", "Bonus from {$network_name} data transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 
 					if(!empty($sponsor_username)){
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($com, 40));
 						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($com, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 					}
+					
 				}
 
 				// Log history
