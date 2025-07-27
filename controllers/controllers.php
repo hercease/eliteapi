@@ -1963,9 +1963,9 @@
                     // Fields to process
                     $requiredFields = ['firstname', 'middlename', 'lastname', 'phone', 'bvn', 'account_number', 'bank_code'];
                     $input = [];
-                    $year = date('Y');
 					$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($_POST['username'] ?? ''));
-					$email = $this->coreModel->fetchuserinfo($username)['email'];
+					$fetchuserinfo = $this->coreModel->fetchuserinfo($username);
+					$email = $fetchuserinfo['email'];
 					$fetchwalletdetails = $this->coreModel->fetchuservirtualwallet($email);
 					$date = date('Y-m-d H:i:s');
 
@@ -2002,6 +2002,20 @@
 					];
 
 					$response = $this->coreModel->curlRequest("https://api.paystack.co/dedicated_account/assign", "POST", $params, $headers);
+
+					if ($response['response']['status'] !== true) {
+						throw new Exception($response['response']['message'] ?? "Failed to create virtual wallet");
+					}
+
+					$reason = "Verification in progress";
+
+					$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, reason, reg_date) VALUES (?, ?, ?)");
+					$stmt->bind_param("sss",$email,$reason,$date);
+                    if (!$stmt->execute()) {
+                        throw new Exception("Failed to insert user: " . $stmt->error);
+                    }
+					$stmt->close();
+
 
 					return ["status" => $response['response']['status'], "message" => $response['response']['message'] ?? 'Verification in progress'];
 

@@ -439,7 +439,7 @@ class CoreModels {
                 $payload = json_encode([
                     'title' => $notification['title'],
                     'body' => $notification['body'],
-                    'icon' => '/public/assets/icons/icon-192x192.png',
+                    'icon' => MAIN_URL . '/icons/android/android-lauchericon-192x192.png',
                     'url' => $notification['url'],
                 ]);
 
