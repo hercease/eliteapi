@@ -2067,6 +2067,7 @@
 
 				
 				$data = json_decode($payload, true);
+				error_log("Webhook received: " . json_encode($data));
 				$event = $data['event'];
 
 				if($event=='customeridentification.failed'){
