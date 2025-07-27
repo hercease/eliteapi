@@ -2003,13 +2003,6 @@
 
 					$response = $this->coreModel->curlRequest("https://api.paystack.co/dedicated_account/assign", "POST", $params, $headers);
 
-					$stmt = $this->db->prepare("INSERT INTO members (email, status, date_created) VALUES (?, ?, ?)");
-                    $stmt->bind_param("sss", $email, $response['response']['message'], $date);
-                    if (!$stmt->execute()) {
-                        throw new Exception("Failed to insert user: " . $stmt->error);
-                    }
-					$stmt->close();
-
 					return ["status" => $response['response']['status'], "message" => $response['response']['message'] ?? 'Verification in progress'];
 
 
