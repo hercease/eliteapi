@@ -1599,27 +1599,24 @@
 				return ["status" => false, "message" => "Invalid request"];
 			}
 
-			public function fetchStat(){
-
+			public function fetchStat() {
 				$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($_POST['username'] ?? ''));
-				$dat = $this->coreModel->calculateTransaction($username,"Data Recharge");
-				$airtime = $this->coreModel->calculateTransaction($username,"Airtime Recharge");
-				$cable = $this->coreModel->calculateTransaction($username,"Cable Recharge");
-				$electricity = $this->coreModel->calculateTransaction($username,"Electricity Recharge");
-				$education = $this->coreModel->calculateTransaction($username,"Education");
-				$wallet_balance = $this->coreModel->fetchuserinfo($username);
-				$trans_history = $this->fetchUserTransactions($username);
-		
-				return [
-					"data" => round($dat,2) ?? 0,
-					"airtime" => round($airtime,2) ?? 0,
-					"cable" => round($cable,2) ?? 0,
-					"electricity" => round($electricity,2) ?? 0,
-					"education" => round($education,2) ?? 0,
-					"wallet" => round($wallet_balance['account'],2) ?? 0,
-					"trans_history" => $trans_history['data'] ?? [],
-				];
+				
+				if (empty($username)) {
+					return ["error" => "Invalid username"];
+				}
 
+				$wallet_balance = $this->coreModel->fetchuserinfo($username) ?? [];
+				
+				return [
+					"data"         => round($this->coreModel->calculateTransaction($username, "Data Recharge") ?? 0, 2),
+					"airtime"      => round($this->coreModel->calculateTransaction($username, "Airtime Recharge") ?? 0, 2),
+					"cable"        => round($this->coreModel->calculateTransaction($username, "Cable Recharge") ?? 0, 2),
+					"electricity"  => round($this->coreModel->calculateTransaction($username, "Electricity Recharge") ?? 0, 2),
+					"education"    => round($this->coreModel->calculateTransaction($username, "Education") ?? 0, 2),
+					"wallet"       => round(floatval($wallet_balance['account'] ?? 0), 2),
+					"trans_history" => $this->fetchUserTransactions($username)['data'] ?? []
+				];
 			}
 
 			public function fundTransfer(){
