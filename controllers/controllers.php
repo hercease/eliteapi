@@ -1609,11 +1609,11 @@
 				$wallet_balance = $this->coreModel->fetchuserinfo($username) ?? [];
 				
 				return [
-					"data"         => round($this->coreModel->calculateTransaction($username, "Airtime Recharge") ?? 0, 2),,
-					"airtime"      => 0,
-					"cable"        => 0,
-					"electricity"  => 0,
-					"education"    => 0,
+					"data"         => round($this->coreModel->calculateTransaction($username, "Data") ?? 0, 2),
+					"airtime"      => round($this->coreModel->calculateTransaction($username, "Airtime") ?? 0, 2),
+					"cable"        => round($this->coreModel->calculateTransaction($username, "Cable") ?? 0, 2),
+					"electricity"  => round($this->coreModel->calculateTransaction($username, "Electricity") ?? 0, 2),
+					"education"    => round($this->coreModel->calculateTransaction($username, "Education") ?? 0, 2),
 					"wallet"       => round(floatval($wallet_balance['account'] ?? 0), 2),
 					"trans_history" => $this->fetchUserTransactions($username)['data'] ?? []
 				];
