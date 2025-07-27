@@ -966,8 +966,8 @@
 					$status = 'successful';
 					$sponsor = $this->coreModel->fetchuserinfo($username);
 					$sponsor_username = $sponsor['sponsor'] ?? '';
-					$this->coreModel->insertProfit('Airtime', $adminprofit, $date, $network_name);
 					$this->coreModel->deductWallet($amount, $username);
+					$this->coreModel->insertProfit('Airtime', $adminprofit, $date, $network_name);
 					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 60));
 					$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
 
@@ -1084,8 +1084,8 @@
 					$status = 'successful';
 					$sponsor = $this->coreModel->fetchuserinfo($username);
 					$sponsor_username = $sponsor['sponsor'] ?? '';
-					$this->coreModel->insertProfit('Data', $adminprofit, $date, $network_name);
 					$this->coreModel->deductWallet($amount, $username);
+					$this->coreModel->insertProfit('Data', $adminprofit, $date, $network_name);
 					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($com, 60));
 
 					if(!empty($sponsor_username)){
@@ -1195,6 +1195,7 @@
 
 					// Deduct wallet and insert history
 					$this->coreModel->deductWallet($inputs['amount'], $inputs['username']);
+					$this->coreModel->insertProfit('Electricity', 100, $date, $inputs['disco']);
 					$this->coreModel->insertHistory(
 						$inputs['username'],
 						$inputs['amount'],
