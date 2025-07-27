@@ -853,6 +853,15 @@
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
 						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
 					}
+
+					$this->coreModel->sendCustomNotifications([
+						[
+							'username' => $username, // Upper Upline
+							'title' => 'Notification Alert',
+							'body' => 'Hi ' . $username  . ', ' . $commonData['type'] . ' ' . $commonData['cable_name'] . ' Subscription to ' . $commonData['smart_card'] . ' (' . $commonData['customer_name'] . ') was successful',
+							'url' => MAIN_URL . "/transactionhistory"
+						]
+					]);
 					
 				}
 
@@ -978,19 +987,21 @@
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
 						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 					}
+
+					$this->coreModel->sendCustomNotifications([
+						[
+							'username' => $username, // Upper Upline
+							'title' => 'Notification Alert',
+							'body' => 'Hi ' . $username  . ', ' . $network_name . ' Airtime purchase of &#8358;' . $amount . ' to ' . $phone . ' was successful',
+							'url' => MAIN_URL . "/transactionhistory"
+						]
+					]);
 				}
 
 				// Log history
 				$this->coreModel->insertHistory($username, $amount, $description, $comment, $status, $date, $api, $this->coreModel->generateRandomString(8));
 
-				$this->coreModel->sendCustomNotifications([
-					[
-						'username' => $username, // Upper Upline
-						'title' => 'Notification Alert',
-						'body' => 'Hi ' . $username  . ', ' . $network_name . ' Airtime purchase of &#8358;' . $amount . ' to ' . $phone . ' was successful',
-						'url' => MAIN_URL . "/transactionhistory"
-					]
-				]);
+				
 
 				return [
 					"status" => $success,
@@ -1097,20 +1108,20 @@
 						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($com, 40));
 						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($com, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 					}
-					
-				}
 
+					$this->coreModel->sendCustomNotifications([
+						[
+							'username' => $username, // Upper Upline
+							'title' => 'Notification Alert',
+							'body' => 'Hi ' . $username  . ', ' . $network_name . '. Data purchase to ' . $phone . ' was successful',
+							'url' => MAIN_URL . "/transactionhistory"
+						]
+					]);
+
+				}
 				// Log history
-				
 				$this->coreModel->insertHistory($username, $amount, $description, $comment, $status, $date, $api, $this->coreModel->generateRandomString(8));
-				$this->coreModel->sendCustomNotifications([
-					[
-						'username' => $username, // Upper Upline
-						'title' => 'Notification Alert',
-						'body' => 'Hi ' . $username  . ', ' . $network_name . '. Data purchase to ' . $phone . ' was successful',
-						'url' => MAIN_URL . "/transactionhistory"
-					]
-				]);
+				
 
 				return [
 					"status" => $success,
