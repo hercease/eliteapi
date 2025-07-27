@@ -2030,7 +2030,7 @@
 
 					// Save wallet initiation info
 					$reason = "Verification in progress";
-					$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, reason, reg_date) VALUES (?, ?, ?)");
+					$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, reason, date_created) VALUES (?, ?, ?)");
 					$stmt->bind_param("sss", $email, $reason, $date);
 
 					if (!$stmt->execute()) {
