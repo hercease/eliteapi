@@ -1956,33 +1956,51 @@
 				 
 			}
 
-			public function createVirtualWallet(){
-
+			public function createVirtualWallet()
+			{
 				try {
-                    
-                    // Fields to process
-                    $requiredFields = ['firstname', 'middlename', 'lastname', 'phone', 'bvn', 'account_number', 'bank_code'];
-                    $input = [];
-					$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($_POST['username'] ?? ''));
+					// Fields to process
+					$requiredFields = ['firstname', 'middlename', 'lastname', 'phone', 'bvn', 'account_number', 'bank_code'];
+					$input = [];
+
+					// Validate and decrypt username
+					$usernameInput = $_POST['username'] ?? '';
+					if (empty($usernameInput)) {
+						throw new Exception("Username is required");
+					}
+
+					$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($usernameInput));
 					$fetchuserinfo = $this->coreModel->fetchuserinfo($username);
-					$email = $fetchuserinfo['email'];
+					$email = $fetchuserinfo['email'] ?? '';
+					if (empty($email)) {
+						throw new Exception("User email could not be retrieved");
+					}
+
+					// Fetch existing virtual wallet details
 					$fetchwalletdetails = $this->coreModel->fetchuservirtualwallet($email);
+					if ($fetchwalletdetails && ($fetchwalletdetails['status'] ?? '') === 'active') {
+						throw new Exception("User already has an active virtual wallet.");
+					}
+
 					$date = date('Y-m-d H:i:s');
 
+					// Log without sensitive data
+					$logPost = $_POST;
+					unset($logPost['bvn'], $logPost['account_number']);
+					error_log("Creating virtual wallet for user: " . json_encode($logPost));
+
+					// Begin DB transaction
 					$this->db->begin_transaction();
 
-					// Sanitize required fields and check if any are empty
-                    foreach ($requiredFields as $field) {
-                        $input[$field] = $this->coreModel->sanitizeInput($_POST[$field] ?? '');
-                        if (empty($input[$field])) {
-                            throw new Exception(ucfirst($field) . " is required");
-                        }
-                    }
+					// Sanitize required fields
+					foreach ($requiredFields as $field) {
+						$input[$field] = $this->coreModel->sanitizeInput($_POST[$field] ?? '');
+						if (empty($input[$field])) {
+							throw new Exception(ucfirst($field) . " is required");
+						}
+					}
 
-					if($fetchwalletdetails){
-						throw new Exception($fetchwalletdetails['reason']);
-					};
-
+					// Prepare Paystack parameters
 					$params = [
 						"email" => $email,
 						"first_name" => $input['firstname'],
@@ -1997,38 +2015,45 @@
 					];
 
 					$headers = [
-						"Authorization: Bearer ". PAYSTACK_SECRET_KEY,
+						"Authorization: Bearer " . PAYSTACK_SECRET_KEY,
 						"Content-Type: application/json"
 					];
 
+					// API request
 					$response = $this->coreModel->curlRequest("https://api.paystack.co/dedicated_account/assign", "POST", $params, $headers);
 
-					if ($response['response']['status'] !== true) {
+					if (!isset($response['response']['status']) || $response['response']['status'] !== true) {
 						throw new Exception($response['response']['message'] ?? "Failed to create virtual wallet");
 					}
 
+					// Save wallet initiation info
 					$reason = "Verification in progress";
-
 					$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, reason, reg_date) VALUES (?, ?, ?)");
-					$stmt->bind_param("sss",$email,$reason,$date);
-                    if (!$stmt->execute()) {
-                        throw new Exception("Failed to insert user: " . $stmt->error);
-                    }
+					$stmt->bind_param("sss", $email, $reason, $date);
+
+					if (!$stmt->execute()) {
+						throw new Exception("Failed to insert virtual wallet record: " . $stmt->error);
+					}
+
 					$stmt->close();
 
+					// Commit DB transaction
+					$this->db->commit();
 
-					return ["status" => $response['response']['status'], "message" => $response['response']['message'] ?? 'Verification in progress'];
-
+					return [
+						"status" => true,
+						"message" => $response['response']['message'] ?? 'Verification in progress'
+					];
 
 				} catch (Exception $e) {
-                    $this->db->rollback();
-                    return [
-                        'status' => false,
-                        'message' => $e->getMessage()
-                    ];
-
-                }
+					$this->db->rollback();
+					return [
+						'status' => false,
+						'message' => $e->getMessage()
+					];
+				}
 			}
+
 
 			public function paymentWebhook(){
 
