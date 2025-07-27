@@ -1615,12 +1615,12 @@
 				$trans_history = $this->fetchUserTransactions($username);
 		
 				return [
-					"data" => round($dat,2),
-					"airtime" => round($airtime,2),
-					"cable" => round($cable,2),
-					"electricity" => round($electricity,2),
-					"education" => round($education,2),
-					"wallet" => round($wallet_balance['account'],2 ?? 0),
+					"data" => round($dat,2) ?? 0,
+					"airtime" => round($airtime,2) ?? 0,
+					"cable" => round($cable,2) ?? 0,
+					"electricity" => round($electricity,2) ?? 0,
+					"education" => round($education,2) ?? 0,
+					"wallet" => round($wallet_balance['account'],2) ?? 0,
 					"trans_history" => $trans_history['data'] ?? [],
 				];
 
