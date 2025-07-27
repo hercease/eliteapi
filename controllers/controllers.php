@@ -1958,6 +1958,9 @@
 
 			public function createVirtualWallet()
 			{
+				// Begin DB transaction
+				$this->db->begin_transaction();
+				
 				try {
 					// Fields to process
 					$requiredFields = ['firstname', 'middlename', 'lastname', 'phone', 'bvn', 'account_number', 'bank_code'];
@@ -1988,9 +1991,6 @@
 					$logPost = $_POST;
 					//unset($logPost['bvn'], $logPost['account_number']);
 					
-
-					// Begin DB transaction
-					$this->db->begin_transaction();
 
 					// Sanitize required fields
 					foreach ($requiredFields as $field) {
@@ -2069,6 +2069,8 @@
 				$data = json_decode($payload, true);
 				$event = $data['event'];
 
+				error_log("Received Paystack webhook event: " . json_encode($data));
+
 				if($event=='customeridentification.failed'){
 
 					$reason = $data['data']['reason'];
@@ -2125,7 +2127,6 @@
 					$bank = $data['data']['dedicated_account']['bank']['name'];
 					$acct_name = $data['data']['account_name'];
 					$acct_num = $data['data']['account_number'];
-					$customer_code = $data['data']['customer']['email'];
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
 					$status = true;
 					$date = date('Y-m-d H:i:s');
