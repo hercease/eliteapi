@@ -2007,7 +2007,7 @@
 						"middle_name" => $input['middlename'],
 						"last_name" => $input['lastname'],
 						"phone" => $input['phone'],
-						"preferred_bank" => "Wema Bank",
+						"preferred_bank" => "wema-bank",
 						"country" => "NG",
 						"bvn" => $input['bvn'],
 						"account_number" => $input['account_number'],
@@ -2067,13 +2067,12 @@
 
 				
 				$data = json_decode($payload, true);
-				error_log("Webhook received: " . json_encode($data));
 				$event = $data['event'];
 
 				if($event=='customeridentification.failed'){
 
-					$reason = $event['data']['reason'];
-					$email = $event['data']['email'];
+					$reason = $data['data']['reason'];
+					$email = $data['data']['email'];
 					$username = $this->coreModel->fetchuserinfo($email)['username'];
 
 					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ? WHERE email = ?");
@@ -2097,7 +2096,7 @@
 				if($event=='dedicatedaccount.assign.failed'){
 
 					$reason = "Virtual dedicated account creation failed, please check your details and try again";
-					$email = $event['data']['customer']['email'];
+					$email = $data['data']['customer']['email'];
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
 
 					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ? WHERE email = ?");
@@ -2121,17 +2120,18 @@
 				if($event=='dedicatedaccount.assign.success'){
 
 					$reason = "Virtual dedicated account creation was successful";
-					$email = $event['data']['customer']['email'];
-					$customer_code = $event['data']['customer']['customer_code'];
-					$bank = $event['data']['dedicated_account']['bank']['name'];
-					$acct_name = $event['data']['account_name'];
-					$acct_num = $event['data']['account_number'];
-					$customer_code = $event['data']['customer']['email'];
+					$email = $data['data']['customer']['email'];
+					$customer_code = $data['data']['customer']['customer_code'];
+					$bank = $data['data']['dedicated_account']['bank']['name'];
+					$acct_name = $data['data']['account_name'];
+					$acct_num = $data['data']['account_number'];
+					$customer_code = $data['data']['customer']['email'];
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
 					$status = true;
+					$date = date('Y-m-d H:i:s');
 
-					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, customer_code = ?, acct_name = ?, acct_number = ?, bank_name = ?, status = ? WHERE email = ?");
-                    $stmt->bind_param("sssssss", $reason, $customer_code, $acct_name, $acct_num, $bank, $status, $email);
+					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, customer_code = ?, acct_name = ?, acct_number = ?, bank_name = ?, date_created = ?, status = ? WHERE email = ?");
+                    $stmt->bind_param("ssssssss", $reason, $customer_code, $acct_name, $acct_num, $bank, $date, $status, $email);
                     if (!$stmt->execute()) {
                         throw new Exception("Failed to insert user: " . $stmt->error);
                     }
@@ -2149,10 +2149,10 @@
 
 				if($event=='charge.success'){
 
-					$email = $event['data']['customer']['email'];
+					$email = $data['data']['customer']['email'];
 					$username = $this->coreModel->fetchUserInfo($email)['username'];
-					$reference = $event['data']['reference'];
-					$amount = $event['data']['amount'] / 100;
+					$reference = $data['data']['reference'];
+					$amount = $data['data']['amount'] / 100;
 
 					$this->coreModel->ProcessPayment($reference,$amount,$username);
 
@@ -2160,10 +2160,10 @@
 
 				if($event=='transfer.success'){
 
-					$reference = $event['data']['reference'];
-					$amount = $event['data']['amount'] / 100;
-					$acct_number = $event['data']['recipient']['details']['account_number'];
-					
+					$reference = $data['data']['reference'];
+					$amount = $data['data']['amount'] / 100;
+					$acct_number = $data['data']['recipient']['details']['account_number'];
+
 					$email = $this->coreModel->fetchuservirtualwallet($acct_number)['email'];
 
 					if(!$email){
@@ -2195,10 +2195,10 @@
 
 				if($event=='transfer.failed'){
 
-					$reference = $event['data']['reference'];
-					$amount = $event['data']['amount'] / 100;
-					$acct_number = $event['data']['recipient']['details']['account_number'];
-					
+					$reference = $data['data']['reference'];
+					$amount = $data['data']['amount'] / 100;
+					$acct_number = $data['data']['recipient']['details']['account_number'];
+
 					$email = $this->coreModel->fetchuservirtualwallet($acct_number)['email'];
 
 					if(!$email){
