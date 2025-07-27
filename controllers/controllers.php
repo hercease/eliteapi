@@ -105,10 +105,6 @@
 						"smartCardNo" => $smart_card
 					]);
 
-					$addonheaders = [
-						'Content-Type: application/json'
-					];
-
 					$headers = [
 						'Content-Type: application/json',
 						'email: ' . RINGO_API_EMAIL, // Use defined constant
@@ -119,11 +115,11 @@
 						"code" => "PRWE36"
 					]);
 
-					//$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
-					//$addon_response = $this->coreModel->curlRequest("https://www.api.ringo.ng/api/dstv/addon", 'POST', $addonData, $headers);
+					$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
+					$addon_response = $this->coreModel->curlRequest("https://www.api.ringo.ng/api/dstv/addon", 'POST', $addonData, $headers);
 
 					// Mocked responses for testing
-					$cableplan_response = [
+					/*$cableplan_response = [
 						'response' => [
 							'customerName' => 'AZEEZ FALETI',
 							'product' => [
@@ -304,7 +300,7 @@
 					],
 					"httpCode" => 200,
 					"error" => null
-				];
+				];*/
 
 					// Process products
 					$cable = [];
@@ -393,9 +389,9 @@
 						'password: ' . RINGO_API_PASSWORD // Use defined constant
 					];
 
-					//$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
+					$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
 
-					$cableplan_response = [
+					/*$cableplan_response = [
 					"response" => [
 						"customerName" => "Isaac Aboshi",
 						"product" => [
@@ -440,7 +436,7 @@
 					],
 					"httpCode" => 200,
 					"error" => null
-				];
+				];*/
 
 					
 					//$p = $this->coreModel->filterArrayByProperty($res['response']['data'] ?? [], 'type', 'gotv');
@@ -479,9 +475,9 @@
 						'password: ' . RINGO_API_PASSWORD // Use defined constant
 					];
 
-					//$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
+					$cableplan_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
 
-					$cableplan_response = [
+					/*$cableplan_response = [
 						"response" => [
 							"status" => 200,
 							"message" => "Successful",
@@ -610,7 +606,7 @@
 						],
 						"httpCode" => 200,
 						"error" => null
-					];
+					];*/
 
 					foreach($cableplan_response['response']['products'] ?? [] as $k => $d){
 						
@@ -1606,10 +1602,10 @@
 			public function fetchStat(){
 
 				$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($_POST['username'] ?? ''));
-				$dat = $this->coreModel->calculateTransaction($username,"Data top up");
-				$airtime = $this->coreModel->calculateTransaction($username,"Airtime recharge");
-				$cable = $this->coreModel->calculateTransaction($username,"Cable recharge");
-				$electricity = $this->coreModel->calculateTransaction($username,"Electricity recharge");
+				$dat = $this->coreModel->calculateTransaction($username,"Data Recharge");
+				$airtime = $this->coreModel->calculateTransaction($username,"Airtime Recharge");
+				$cable = $this->coreModel->calculateTransaction($username,"Cable Recharge");
+				$electricity = $this->coreModel->calculateTransaction($username,"Electricity Recharge");
 				$education = $this->coreModel->calculateTransaction($username,"Education");
 				$wallet_balance = $this->coreModel->fetchuserinfo($username);
 				$trans_history = $this->fetchUserTransactions($username);
