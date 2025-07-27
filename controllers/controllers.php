@@ -2022,7 +2022,7 @@
 					];
 
 					// API request
-					$response = $this->coreModel->curlRequest("https://api.paystack.co/dedicated_account/assign", "POST", $params, $headers);
+					$response = $this->coreModel->curlRequest("https://api.paystack.co/dedicated_account/assign", "POST", json_encode($params), $headers);
 
 					if (!isset($response['response']['status']) || $response['response']['status'] !== true) {
 						throw new Exception($response['response']['message'] ?? "Failed to create virtual wallet");
