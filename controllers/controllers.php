@@ -1960,7 +1960,7 @@
 			{
 				// Begin DB transaction
 				$this->db->begin_transaction();
-				
+
 				try {
 					// Fields to process
 					$requiredFields = ['firstname', 'middlename', 'lastname', 'phone', 'bvn', 'account_number', 'bank_code'];
@@ -1981,7 +1981,7 @@
 
 					// Fetch existing virtual wallet details
 					$fetchwalletdetails = $this->coreModel->fetchuservirtualwallet($email);
-					if ($fetchwalletdetails && ($fetchwalletdetails['status'] ?? '') === 'active') {
+					if ($fetchwalletdetails) {
 						throw new Exception("User already has an active virtual wallet.");
 					}
 
