@@ -1986,7 +1986,7 @@
 
 					// Log without sensitive data
 					$logPost = $_POST;
-					unset($logPost['bvn'], $logPost['account_number']);
+					//unset($logPost['bvn'], $logPost['account_number']);
 					error_log("Creating virtual wallet for user: " . json_encode($logPost));
 
 					// Begin DB transaction
