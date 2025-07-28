@@ -2147,6 +2147,10 @@
 					$status = 'completed';
 					$date = date('Y-m-d H:i:s');
 
+					// deduct from wallet
+
+					$this->coreModel->deductWallet(50, $fetchusername);
+
 					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, customer_code = ?, acct_name = ?, acct_number = ?, bank_name = ?, date_created = ?, status = ? WHERE email = ?");
                     $stmt->bind_param("ssssssss", $reason, $customer_code, $acct_name, $acct_num, $bank, $date, $status, $email);
                     if (!$stmt->execute()) {
