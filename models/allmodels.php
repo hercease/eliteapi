@@ -531,7 +531,7 @@ class CoreModels {
 
 		try{
 
-			$username = $this->decryptCookie($this->sanitizeInput($username));
+			//$username = $this->decryptCookie($this->sanitizeInput($username));
 
 			$headers= [
 				"Authorization: Bearer ". PAYSTACK_SECRET_KEY,

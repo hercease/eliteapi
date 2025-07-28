@@ -2083,7 +2083,7 @@
 				$data = json_decode($payload, true);
 				$event = $data['event'];
 
-				error_log("Received Paystack webhook event: " . json_encode($data));
+				//error_log("Received Paystack webhook event: " . json_encode($data));
 
 				if($event=='customeridentification.failed'){
 
