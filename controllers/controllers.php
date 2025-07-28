@@ -1720,7 +1720,7 @@
 						"acct_name" => $fetchvirtualaccount['acct_name'] ?? "",
 						"acct_number" => $fetchvirtualaccount['acct_number'] ?? "",
 						"bank_name" => $fetchvirtualaccount['bank_name'] ?? "",
-						"status" => $fetchvirtualaccount['status'] ?? 0,
+						"status" => $fetchvirtualaccount['status'] ?? "pending",
 						"reason" => $fetchvirtualaccount['reason'] ?? "",
 					]
 				];
