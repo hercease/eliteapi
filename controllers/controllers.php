@@ -737,6 +737,7 @@
 				}
 
 				$commission = 0;
+				$gateway = "";
 
 				$commonData = [
 					'type' => $_POST['cable_name'] ?? '',
@@ -779,7 +780,7 @@
 							];
 						}
 
-						
+						$commission = $this->coreModel->ringo_cable_commission($network);
 						$response = $this->coreModel->curlRequest('https://www.api.ringo.ng/api/agent/p2', 'POST', json_encode($postData), $ringoHeaders);
 						$success = ($response['response']['status'] ?? 0) == 200;
 						$gateway = 'ringo';
@@ -792,6 +793,7 @@
 							'phone' => $commonData['smart_card']
 						];
 
+						$commission = $this->coreModel->planetf_cable_commission($network);
 						$response = $this->coreModel->curlRequest('https://softconnet.com.ng/api/reseller/pay', 'POST', $payload, $planetfHeaders);
 						$success = ($response['response']['success'] ?? 0) == 1;
 						$gateway = 'planetf';
@@ -805,7 +807,7 @@
 							"price" => $commonData['total_price'],
 							"request_id" => $commonData['request_id'],
 						]);
-
+						$commission = $this->coreModel->ringo_cable_commission($network);
 						$response = $this->coreModel->curlRequest('https://www.api.ringo.ng/api/agent/p2', 'POST', $postData, $ringoHeaders);
 						$success = ($response['response']['status'] ?? 0) == 200;
 						$gateway = 'ringo';
@@ -823,7 +825,7 @@
 							"serviceCode" => "SHPAY",
 							"package" => "Showmax Mobile"
 						]);
-
+						$commission = $this->coreModel->ringo_cable_commission($network);
 						$response = $this->coreModel->curlRequest('https://www.api.ringo.ng/api/agent/p2', 'POST', $postData, $ringoHeaders);
 						$success = ($response['response']['status'] ?? 0) == 200;
 						$gateway = 'ringo';
@@ -833,7 +835,7 @@
 						return $data;
 				}
 
-				$commission = $this->coreModel->planetf_airtime_commission($network);
+				
 				$calculate_commission = $this->coreModel->calculatePercentage($total_price, $commission);
 				$adminprofit = $this->coreModel->calculatePercentage($calculate_commission, 60);
 				$usersprofit = $this->coreModel->calculatePercentage($calculate_commission, 40);

@@ -230,6 +230,18 @@ class CoreModels {
 
 		return $map[$network] ?? null; // Return null if not found
 	}
+
+	public function planetf_cable_commission($network){
+		$map = [
+			'DSTV' => 1,
+			'GOTV' => 1,
+			'STARTIMES' => 0.5
+		];
+
+		$network = strtoupper(trim($network)); // Normalize input
+
+		return $map[$network] ?? null; // Return null if not found
+	}
 	
 	public function calculate20Percent($amount){
 		// Calculate 20 percent of the given amount
