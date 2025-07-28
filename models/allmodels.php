@@ -563,9 +563,8 @@ class CoreModels {
 				$stmt1->bind_param("ds", $amount,$username);
 				$stmt1->execute();
 				$stmt1->close();
-				
-				$comment = "Your account has just been funded with the sum of $amount";
-				$this->insertHistory($username, $amount, "Fund Wallet", $comment, "successful", date("Y-m-d H:i:s"), 'Paystack', $this->generateRandomString(8));
+				$comment = "Your account has just been funded with the sum of " . number_format($amount, 2);
+				$this->insertHistory($username, $amount, "Fund Wallet", $comment, "successful", date("Y-m-d H:i:s"), 'Paystack', $ref);
 				
 				return ["status" => true, "message" => "Transaction was successful"];
 

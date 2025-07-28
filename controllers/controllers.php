@@ -1981,8 +1981,8 @@
 
 					// Fetch existing virtual wallet details
 					$fetchwalletdetails = $this->coreModel->fetchuservirtualwallet($email);
-					if ($fetchwalletdetails) {
-						throw new Exception("User already has an active virtual wallet.");
+					if ($fetchwalletdetails && $fetchwalletdetails['status'] === 'inprogress') {
+						throw new Exception("You have a verification in progress, please wait for it to complete");
 					}
 
 					$date = date('Y-m-d H:i:s');
@@ -2030,14 +2030,29 @@
 
 					// Save wallet initiation info
 					$reason = "Verification in progress";
-					$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, reason, date_created) VALUES (?, ?, ?)");
-					$stmt->bind_param("sss", $email, $reason, $date);
+					$status = 'inprogress';
 
-					if (!$stmt->execute()) {
-						throw new Exception("Failed to insert virtual wallet record: " . $stmt->error);
+
+					if($fetchwalletdetails){
+
+						$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, status = ? WHERE email = ?");
+						$stmt->bind_param("sss", $reason, $status, $email);
+						if (!$stmt->execute()) {
+							throw new Exception("Failed to insert user: " . $stmt->error);
+						}
+						$stmt->close();
+
+					} else {
+
+						$stmt = $this->db->prepare("INSERT INTO virtual_accounts (email, date_created, status, reason) VALUES (?, ?, ?, ?)");
+						$stmt->bind_param("ssss", $email, $date, $status, $reason);
+						if (!$stmt->execute()) {
+							throw new Exception("Failed to insert virtual wallet record: " . $stmt->error);
+						}
+						$stmt->close();
+
 					}
-
-					$stmt->close();
+					
 
 					// Commit DB transaction
 					$this->db->commit();
@@ -2073,12 +2088,13 @@
 
 				if($event=='customeridentification.failed'){
 
-					$reason = $data['data']['reason'];
+					$reason = $data['data']['reason'] ?? "Virtual dedicated account creation failed, please check your details and try again";
 					$email = $data['data']['email'];
 					$username = $this->coreModel->fetchuserinfo($email)['username'];
+					$status = 'pending';
 
-					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ? WHERE email = ?");
-                    $stmt->bind_param("ss", $reason,$email);
+					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, status = ? WHERE email = ?");
+                    $stmt->bind_param("sss", $reason,$status,$email);
                     if (!$stmt->execute()) {
                         throw new Exception("Failed to insert user: " . $stmt->error);
                     }
@@ -2100,9 +2116,10 @@
 					$reason = "Virtual dedicated account creation failed, please check your details and try again";
 					$email = $data['data']['customer']['email'];
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
+					$status = 'pending';
 
-					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ? WHERE email = ?");
-                    $stmt->bind_param("ss", $reason,$email);
+					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, status = ? WHERE email = ?");
+                    $stmt->bind_param("sss", $reason,$status,$email);
                     if (!$stmt->execute()) {
                         throw new Exception("Failed to insert user: " . $stmt->error);
                     }
@@ -2125,10 +2142,10 @@
 					$email = $data['data']['customer']['email'];
 					$customer_code = $data['data']['customer']['customer_code'];
 					$bank = $data['data']['dedicated_account']['bank']['name'];
-					$acct_name = $data['data']['account_name'];
-					$acct_num = $data['data']['account_number'];
+					$acct_name = $data['data']['dedicated_account']['account_name'];
+					$acct_num = $data['data']['dedicated_account']['account_number'];
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
-					$status = true;
+					$status = 'completed';
 					$date = date('Y-m-d H:i:s');
 
 					$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, customer_code = ?, acct_name = ?, acct_number = ?, bank_name = ?, date_created = ?, status = ? WHERE email = ?");
@@ -2177,8 +2194,8 @@
 					$stmt1->bind_param("ds", $amount,$username);
 					$stmt1->execute();
 					$stmt1->close();
-					
-					$comment = "Your account has just been funded with the sum of $amount";
+
+					$comment = "Your account has just been funded with the sum of " . number_format($amount, 2);
 					$this->coreModel->insertHistory($username, $amount, "Fund Wallet", $comment, "successful", date("Y-m-d H:i:s"), 'Paystack', $this->coreModel->generateRandomString(8));
 					
 					return ["status" => true, "message" => "Transaction was successful"];
