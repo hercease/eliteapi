@@ -1768,6 +1768,7 @@
 			}
 
 			public function registerUser(){
+				 $this->db->begin_transaction();
 				try {
                     
                     // Fields to process
@@ -1776,8 +1777,6 @@
                     $year = date('Y');
 					$sponsor = $this->coreModel->sanitizeInput($_POST['sponsor'] ?? 'elite');
 
-                    $this->db->begin_transaction();
-    
                     // Sanitize required fields and check if any are empty
                     foreach ($requiredFields as $field) {
                         $input[$field] = $this->coreModel->sanitizeInput($_POST[$field] ?? '');
