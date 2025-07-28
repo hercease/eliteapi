@@ -837,23 +837,22 @@
 
 				
 				$calculate_commission = $this->coreModel->calculatePercentage($total_price, $commission);
-				$adminprofit = $this->coreModel->calculatePercentage($calculate_commission, 60);
-				$usersprofit = $this->coreModel->calculatePercentage($calculate_commission, 40);
+				$adminprofit = $this->coreModel->calculatePercentage($calculate_commission, 43);
+				$usersprofit = $this->coreModel->calculatePercentage($calculate_commission, 57);
 				$status = $success ? "successful" : "failed";
 				$comment = "{$commonData['type']} {$commonData['cable_name']} Subscription to {$commonData['smart_card']} ({$commonData['customer_name']}) for validity period of {$commonData['period']} month/s";
 				$this->coreModel->insertHistory($username, $total_price, "Cable Tv", $comment, $status, date("Y-m-d H:i:s"), $gateway,$this->coreModel->generateRandomString(8));
 
 				if ($success) {
 					$this->coreModel->deductWallet($total_price, $username);
-					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 60));
-					$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
+					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 75));
 					$this->coreModel->insertProfit('Cable', $adminprofit, date("Y-m-d H:i:s"), $network);
-					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 60), "{$commonData['cable_name']} Cable Transaction bonus", "Bonus from {$commonData['cable_name']} cable transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 75), "{$commonData['cable_name']} Cable Transaction bonus", "Bonus from {$commonData['cable_name']} cable transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
 
 
 					if(!empty($sponsor_username)){
-						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
-						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
+						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 25));
+						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 25), "Recruit Transaction bonus", "You just earn 25% from $username's transaction", $status, date("Y-m-d H:i:s"), $gateway, $this->coreModel->generateRandomString(8));
 					}
 
 					$this->coreModel->sendCustomNotifications([
@@ -971,8 +970,8 @@
 				}
 
 				$calculated_commission = $this->coreModel->calculatePercentage($amount, $commission);
-				$adminprofit = $this->coreModel->calculatePercentage($calculated_commission, 60);
-				$usersprofit =$this->coreModel->calculatePercentage($calculated_commission, 40);
+				$adminprofit = $this->coreModel->calculatePercentage($calculated_commission, 43);
+				$usersprofit =$this->coreModel->calculatePercentage($calculated_commission, 57);
 				//error_log($calculated_commission);
 
 				if ($success) {
@@ -981,13 +980,12 @@
 					$sponsor_username = $sponsor['sponsor'] ?? '';
 					$this->coreModel->deductWallet($amount, $username);
 					$this->coreModel->insertProfit('Airtime', $adminprofit, $date, $network_name);
-					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 60));
-					$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
-					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 60), "Airtime Transaction bonus", "Bonus from airtime transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
+					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($usersprofit, 75));
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($usersprofit, 75), "Airtime Transaction bonus", "Bonus from airtime transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 
 					if(!empty($sponsor_username)){
-						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40));
-						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
+						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 25));
+						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($usersprofit, 25), "Recruit Transaction bonus", "You just earn 25% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 					}
 
 					$this->coreModel->sendCustomNotifications([
@@ -1103,12 +1101,12 @@
 					$sponsor_username = $sponsor['sponsor'] ?? '';
 					$this->coreModel->deductWallet($amount, $username);
 					$this->coreModel->insertProfit('Data', $adminprofit, $date, $network_name);
-					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($com, 60));
-					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($com, 60), "{$network_name} Data Transaction bonus", "Bonus from {$network_name} data transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
+					$this->coreModel->creditbonus($username, $this->coreModel->calculatePercentage($com, 75));
+					$this->coreModel->insertHistory($username, $this->coreModel->calculatePercentage($com, 75), "{$network_name} Data Transaction bonus", "Bonus from {$network_name} data transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 
 					if(!empty($sponsor_username)){
-						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($com, 40));
-						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($com, 40), "Recruit Transaction bonus", "You just earn 40% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
+						$this->coreModel->creditbonus($sponsor_username, $this->coreModel->calculatePercentage($com, 25));
+						$this->coreModel->insertHistory($sponsor_username, $this->coreModel->calculatePercentage($com, 25), "Recruit Transaction bonus", "You just earn 25% from $username's transaction", $status, $date, $api, $this->coreModel->generateRandomString(8));
 					}
 
 					$this->coreModel->sendCustomNotifications([
