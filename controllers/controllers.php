@@ -37,7 +37,7 @@
 			foreach($ringo_resp ?? [] as $r){
 				$increasedPrice = $this->coreModel->calculateIncreasedPrice($r['price']);
 				$com  = $increasedPrice - $r['price'];
-				$calculate_com = $this->coreModel->calculatePercentage($com, 40);
+				$calculate_com = $this->coreModel->calculatePercentage($com, 45);
 				$data[] = array(
 					"value" => $r['product_id'],
 					"type" => $r['category'],

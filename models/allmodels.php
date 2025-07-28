@@ -207,10 +207,10 @@ class CoreModels {
 
 	public function cashless_airtime_commission($network){
 		$map = [
-			'MTN'    => 1.2,
-			'AIRTEL' => 1.2,
-			'GLO'    => 2.5,
-			'9MOBILE'=> 1.5
+			'MTN'    => 3,
+			'AIRTEL' => 3,
+			'GLO'    => 6,
+			'9MOBILE'=> 3
 		];
 
 		$network = strtoupper(trim($network)); // Normalize input
