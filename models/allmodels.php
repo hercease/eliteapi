@@ -218,7 +218,7 @@ class CoreModels {
 		return $map[$network] ?? null; // Return null if not found
 	}
 
-	public function  ringo_cable_commission($network){
+	public function ringo_cable_commission($network){
 		$map = [
 			'DSTV' => 1.6,
 			'GOTV' => 1.0,
