@@ -1220,7 +1220,7 @@
 						$inputs['amount'],
 						$description,
 						$comment,
-						true,
+						'successful',
 						$date,
 						$inputs['api'],
 						$this->coreModel->generateRandomString(8)
