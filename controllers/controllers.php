@@ -1980,7 +1980,7 @@
 
 					// Fetch existing virtual wallet details
 					$fetchwalletdetails = $this->coreModel->fetchuservirtualwallet($email);
-					if ($fetchwalletdetails && $fetchwalletdetails['status'] == 'inprogress') {
+					if ($fetchwalletdetails && $fetchwalletdetails['status'] != 'pending') {
 						throw new Exception("You have a verification in progress, please wait for it to complete");
 					}
 
@@ -2034,8 +2034,8 @@
 
 					if($fetchwalletdetails){
 
-						$stmt = $this->db->prepare("UPDATE virtual_accounts SET status = ? WHERE email = ?");
-						$stmt->bind_param("ss", $status, $email);
+						$stmt = $this->db->prepare("UPDATE virtual_accounts SET reason = ?, status = ? WHERE email = ?");
+						$stmt->bind_param("sss", $reason, $status, $email);
 						if (!$stmt->execute()) {
 							throw new Exception("Failed to insert user: " . $stmt->error);
 						}
