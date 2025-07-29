@@ -2193,24 +2193,7 @@
 
 					$username = $this->coreModel->fetchUserInfo($email)['username'];
 
-					$stmt1 = $this->db->prepare("UPDATE members SET account = account + ?  where username = ?");
-					$stmt1->bind_param("ds", $amount,$username);
-					$stmt1->execute();
-					$stmt1->close();
-
-					$comment = "Your account has just been funded with the sum of " . number_format($amount, 2);
-					$this->coreModel->insertHistory($username, $amount, "Fund Wallet", $comment, "successful", date("Y-m-d H:i:s"), 'Paystack', $this->coreModel->generateRandomString(8));
-					
-					return ["status" => true, "message" => "Transaction was successful"];
-
-					$this->coreModel->sendCustomNotifications([
-						[
-							'username' => $username, // Upper Upline
-							'title' => 'Notification Alert',
-							'body' => 'Hi ' . $username . ', '. $comment,
-							'url' => MAIN_URL . "/transactionhistory"
-						],
-					]);
+					$this->coreModel->ProcessPayment($reference,$amount,$username);
 
 				}
 
