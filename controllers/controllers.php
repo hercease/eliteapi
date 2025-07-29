@@ -1791,8 +1791,9 @@
                     $requiredFields = ['username', 'password', 'confirm_password', 'email'];
                     $input = [];
                     $year = date('Y');
-					$sponsor = $this->coreModel->sanitizeInput($_POST['sponsor'] ?? 'elite');
-
+					$sponsorInput = $_POST['sponsor'] == "" ? 'elite' : $_POST['sponsor'];
+					$sponsor = $this->coreModel->sanitizeInput($sponsorInput);
+					error_log($sponsor);
                     // Sanitize required fields and check if any are empty
                     foreach ($requiredFields as $field) {
                         $input[$field] = $this->coreModel->sanitizeInput($_POST[$field] ?? '');

@@ -523,7 +523,7 @@ class CoreModels {
             $mail->Port       = 465;               
     
             //Recipients
-            $mail->setFrom(SMTP_FROM_EMAIL, 'GlobalSingleLine'); // Sender's email and name
+            $mail->setFrom(SMTP_FROM_EMAIL, 'EliteGlobalNetwork'); // Sender's email and name
             $mail->addAddress("$email", "$name"); 
             
             $mail->isHTML(true); 
