@@ -2082,6 +2082,7 @@
 				
 				$data = json_decode($payload, true);
 				$event = $data['event'];
+				$percent = 0.016;
 
 				error_log("Received Paystack webhook event: " . json_encode($data));
 
@@ -2146,6 +2147,7 @@
 					$fetchusername = $this->coreModel->fetchuserinfo($email)['username'];
 					$status = 'completed';
 					$date = date('Y-m-d H:i:s');
+					
 
 					// deduct from wallet
 
@@ -2174,6 +2176,7 @@
 					$username = $this->coreModel->fetchUserInfo($email)['username'];
 					$reference = $data['data']['reference'];
 					$amount = $data['data']['amount'] / 100;
+					$amount = $this->coreModel->calculateNetAmount($amount, $percent);
 
 					$this->coreModel->ProcessPayment($reference,$amount,$username);
 
@@ -2182,7 +2185,10 @@
 				if($event=='transfer.success'){
 
 					$reference = $data['data']['reference'];
+
 					$amount = $data['data']['amount'] / 100;
+					$amount = $this->coreModel->calculateNetAmount($amount, $percent);
+
 					$acct_number = $data['data']['recipient']['details']['account_number'];
 
 					$email = $this->coreModel->fetchuservirtualwallet($acct_number)['email'];

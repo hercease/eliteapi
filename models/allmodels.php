@@ -600,4 +600,18 @@ class CoreModels {
 		}
 	}
 
+	function calculateNetAmount($amount, $percent = 0.016)
+	{
+		if ($amount < 2500) {
+			$amount = $amount - ($amount * $percent);
+		} elseif ($amount >= 2500 && $amount < 10000) {
+			$amount = $amount - 70;
+		} else {
+			$amount = $amount - 100;
+		}
+
+		return round($amount, 2); // Round to 2 decimal places (optional)
+	}
+
+
 }
