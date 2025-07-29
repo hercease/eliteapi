@@ -11,34 +11,45 @@
 			$this->coreModel = new CoreModels($db);
 		}
 		
-		public function fetchDataPlans(){
-			
-			$data = array();
+		public function fetchDataPlans()
+		{
+			$data = [];
 			$network = $_POST['network'];
+
+			// Get PlanetF network code
 			$planetf_code = $this->coreModel->network_detection($network);
+
+			// API URLs
 			$planetf_url = "https://softconnet.com.ng/api/reseller/list";
 			$ringo_url = "https://www.api.ringo.ng/api/agent/p2";
-			
-			$planetf_response = $this->coreModel->curlRequest($planetf_url, 'POST', ['service' => 'data', 'coded' => $planetf_code ], ['Authorization: ' . PLANETF_API_KEY ]);
-			//error_log(print_r($planetf_response['response']['data'],TRUE));
-			$postData = json_encode([
-                "serviceCode" => 'DTA',
-				"network" => $network
-            ]);
 
-            $headers = [
-                'Content-Type: application/json',
-				'email: ' . RINGO_API_EMAIL, // Use defined constant
-				'password: ' . RINGO_API_PASSWORD // Use defined constant
-            ];
+			// --- PlanetF API Call ---
+			$planetf_response = $this->coreModel->curlRequest($planetf_url,'POST',['service' => 'data', 'coded' => $planetf_code],['Authorization: ' . PLANETF_API_KEY]);
+
+			// --- Ringo API Call ---
+			$postData = json_encode([
+				"serviceCode" => 'DTA',
+				"network" => $network
+			]);
+
+			$headers = [
+				'Content-Type: application/json',
+				'email: ' . RINGO_API_EMAIL,
+				'password: ' . RINGO_API_PASSWORD
+			];
 
 			$ringo_response = $this->coreModel->curlRequest($ringo_url, 'POST', $postData, $headers);
-			$ringo_resp = isset($ringo_response['response']['message']) ? [] : $ringo_response['response'];
-			foreach($ringo_resp ?? [] as $r){
+			$ringo_resp = isset($ringo_response['response']['message']) ? [] : ($ringo_response['response'] ?? []);
+
+			// --- Process Ringo Response ---
+			foreach ($ringo_resp as $r) {
+				if (!isset($r['product_id'], $r['price'])) continue;
+
 				$increasedPrice = $this->coreModel->calculateIncreasedPrice($r['price']);
-				$com  = $increasedPrice - $r['price'];
+				$com = $increasedPrice - $r['price'];
 				$calculate_com = $this->coreModel->calculatePercentage($com, 45);
-				$data[] = array(
+
+				$data[] = [
 					"value" => $r['product_id'],
 					"type" => $r['category'],
 					"name" => $r['allowance'],
@@ -46,17 +57,22 @@
 					"price" => ceil($increasedPrice),
 					"api" => 'ringo',
 					"profit" => $com - $calculate_com
-				);
+				];
 			}
-			//error_log(print_r($ringo_response,TRUE));
-			$p = $this->coreModel->filterArrayByPrice($planetf_response['response']['data'] ?? [], 'level1');
-			$p = array_column(array_reverse($p), null, 'code');
-			//error_log(print_r($p,TRUE));
-			foreach($p as $d){
+
+			// --- Process PlanetF Response ---
+			$planetf_data = $planetf_response['response']['data'] ?? [];
+			$filtered_planetf = $this->coreModel->filterArrayByPrice($planetf_data, 'level1');
+			$filtered_planetf = array_column(array_reverse($filtered_planetf), null, 'code');
+
+			foreach ($filtered_planetf as $d) {
+				if (!isset($d['code'], $d['level1'])) continue;
+
 				$increasedPrice = $this->coreModel->calculateIncreasedPrice($d['level1']);
-				$com  = $increasedPrice - $d['level1'];
+				$com = $increasedPrice - $d['level1'];
 				$calculate_com = $this->coreModel->calculatePercentage($com, 40);
-				$data[] = array(
+
+				$data[] = [
 					"value" => $d['code'],
 					"type" => $d['type'],
 					"name" => $d['name'],
@@ -64,12 +80,12 @@
 					"price" => ceil($increasedPrice),
 					"api" => 'planetf',
 					"profit" => $com - $calculate_com
-				);
+				];
 			}
-			
+
 			return $data;
-			
 		}
+
 
 
 			public function fetchCablePlanList() {
