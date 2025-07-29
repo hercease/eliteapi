@@ -1842,13 +1842,13 @@
                     $message = <<<EMAIL
 						<!DOCTYPE html>
 						<html>
-						<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-							<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+						<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #bdbabaff;">
+							<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #bdbabaff; padding: 40px 0;">
 							<tr>
 								<td align="center">
-								<table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+								<table width="600" cellpadding="0" cellspacing="0" style="background-color: #bdbabaff; border-radius: 8px; overflow: hidden;">
 									<tr>
-									<td align="center" style="padding: 20px; background-color: #719cdbff; color: #ffffff;">
+									<td align="center" style="padding: 20px; background-color: #719cdbff; color: #bdbabaff;">
 										<h1 style="margin: 0; font-size: 24px;">Welcome to EliteGlobal</h1>
 									</td>
 									</tr>
@@ -1867,7 +1867,7 @@
 										Please confirm your email address by clicking the button below.
 										</p>
 										<div style="text-align: center; margin: 30px 0;">
-										<a href="$activation_link" style="background-color: #0c4af3ff; color: #ffffff; text-decoration: none; padding: 14px 30px; font-size: 16px; border-radius: 5px; display: inline-block;">
+										<a href="$activation_link" style="background-color: #0c4af3ff; color: #bdbabaff; text-decoration: none; padding: 14px 30px; font-size: 16px; border-radius: 5px; display: inline-block;">
 											Confirm Email
 										</a>
 										</div>
@@ -1892,39 +1892,33 @@
 					$date = date('Y-m-d H:i:s');
                     
 
-					$sendmail = $this->coreModel->sendmail($input['email'],$input['username'],$message,"Registration Confirmation");
+					$this->coreModel->sendmail($input['email'],$input['username'],$message,"Registration Confirmation");
 
-					if($sendmail){
+					// Insert user
+					$stmt = $this->db->prepare("INSERT INTO members (username, email, password, sponsor, reg_date) VALUES (?, ?, ?, ?, ?)");
+					$stmt->bind_param("sssss", $input['username'], $input['email'], $hashedPassword, $sponsor, $date);
+					if (!$stmt->execute()) {
+						throw new Exception("Failed to insert user: " . $stmt->error);
+					}
+					$stmt->close();
 
-						// Insert user
-						$stmt = $this->db->prepare("INSERT INTO members (username, email, password, sponsor, reg_date) VALUES (?, ?, ?, ?, ?)");
-						$stmt->bind_param("sssss", $input['username'], $input['email'], $hashedPassword, $sponsor, $date);
-						if (!$stmt->execute()) {
-							throw new Exception("Failed to insert user: " . $stmt->error);
-						}
-						$stmt->close();
+					if(!empty($sponsor) || !is_null($sponsor)){
 
-						if(!empty($sponsor) || !is_null($sponsor)){
-
-							$this->coreModel->sendCustomNotifications([
-								[
-									'username' => $sponsor, // Upper Upline
-									'title' => 'Notification Alert',
-									'body' => 'Congratulations ' . $sponsor . ', Someone just registered using your referral link',
-									'url' => MAIN_URL . "/referrals"
-								],
-							]);
-
-						}
-
-						$this->db->commit();
-
-                        return ["status" => true, "message" => "Congratulations, registration was successful, Kindly check your email for verification"];
+						$this->coreModel->sendCustomNotifications([
+							[
+								'username' => $sponsor, // Upper Upline
+								'title' => 'Notification Alert',
+								'body' => 'Congratulations ' . $sponsor . ', Someone just registered using your referral link',
+								'url' => MAIN_URL . "/referrals"
+							],
+						]);
 
 					}
-					
-				
-                        
+
+					$this->db->commit();
+
+					return ["status" => true, "message" => "Congratulations, registration was successful, Kindly check your email for verification"];
+ 
 
                 } catch (Exception $e) {
 
