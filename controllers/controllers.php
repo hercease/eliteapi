@@ -1890,32 +1890,41 @@
 						EMAIL;
 
 					$date = date('Y-m-d H:i:s');
-                    // Insert user
-                    $stmt = $this->db->prepare("INSERT INTO members (username, email, password, sponsor, reg_date) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sssss", $input['username'], $input['email'], $hashedPassword, $sponsor, $date);
-                    if (!$stmt->execute()) {
-                        throw new Exception("Failed to insert user: " . $stmt->error);
-                    }
-					$stmt->close();
+                    
 
-					$this->coreModel->sendmail($input['email'],$input['username'],$message,"Registration Confirmation");
+					$sendmail = $this->coreModel->sendmail($input['email'],$input['username'],$message,"Registration Confirmation");
 
-					if(!empty($sponsor) || !is_null($sponsor)){
+					if($sendmail){
 
-						$this->coreModel->sendCustomNotifications([
-							[
-								'username' => $sponsor, // Upper Upline
-								'title' => 'Notification Alert',
-								'body' => 'Congratulations ' . $sponsor . ', Someone just registered using your referral link',
-								'url' => MAIN_URL . "/referrals"
-							],
-						]);
+						// Insert user
+						$stmt = $this->db->prepare("INSERT INTO members (username, email, password, sponsor, reg_date) VALUES (?, ?, ?, ?, ?)");
+						$stmt->bind_param("sssss", $input['username'], $input['email'], $hashedPassword, $sponsor, $date);
+						if (!$stmt->execute()) {
+							throw new Exception("Failed to insert user: " . $stmt->error);
+						}
+						$stmt->close();
 
-					}
-				
-                        $this->db->commit();
+						if(!empty($sponsor) || !is_null($sponsor)){
+
+							$this->coreModel->sendCustomNotifications([
+								[
+									'username' => $sponsor, // Upper Upline
+									'title' => 'Notification Alert',
+									'body' => 'Congratulations ' . $sponsor . ', Someone just registered using your referral link',
+									'url' => MAIN_URL . "/referrals"
+								],
+							]);
+
+						}
+
+						$this->db->commit();
 
                         return ["status" => true, "message" => "Congratulations, registration was successful, Kindly check your email for verification"];
+
+					}
+					
+				
+                        
 
                 } catch (Exception $e) {
 
