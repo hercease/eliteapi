@@ -121,6 +121,10 @@ switch ($url) {
         $confirmaccount = $controller->accountConfirmation();
         sendSuccessResponse($confirmaccount); // sends as JSON
 		break;
+	case '/forgotpassword':
+        $forgotpassword = $controller->processPassword();
+        sendSuccessResponse($forgotpassword); // sends as JSON
+		break;
        
 	default:
         sendErrorResponse(400, 'Invalid request type');

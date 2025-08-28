@@ -1931,6 +1931,74 @@
                 }
 			}
 
+			public function processPassword(){
+
+				$email = $_POST['email'] ?? '';
+
+				if (empty($email)) {
+					return ["status" => false, "message" => "Email is required"];
+				}
+
+				$userInfo = $this->coreModel->fetchuserinfo($email);
+
+				if (!$userInfo) {
+					return ["status" => false, "message" => "Email not found"];
+				}
+
+				$temporaryPassword = bin2hex(random_bytes(3));
+				$userName = $userInfo['username'];
+				$appName = "Elite Global Network";
+				$loginLink = MAIN_URL . '/login';
+				$subject = 'Forgot Password';
+				
+				// Build the HTML email using the template
+				$emailTemplate = '
+				<!DOCTYPE html>
+				<html>
+				<head>
+					<meta charset="UTF-8">
+					<title>Password Reset Request</title>
+				</head>
+				<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+					<div style="background-color: #4a6bff; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+						<h1 style="margin: 0;">Password Reset Request</h1>
+					</div>
+					<div style="padding: 25px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0;">
+						<p>Hello ' . htmlspecialchars($userName) . ',</p>
+						<p>We received a request to reset your password for your account at ' . htmlspecialchars($appName) . '. Here\'s your temporary password:</p>
+						
+						<div style="background-color: #f0f4ff; border: 1px dashed #4a6bff; padding: 12px; text-align: center; font-size: 18px; font-weight: bold; margin: 15px 0; border-radius: 4px;">
+							' . htmlspecialchars($temporaryPassword) . '
+						</div>
+						
+						<p><strong style="color: #d9534f;">Important:</strong></p>
+						<ul style="padding-left: 20px; margin-bottom: 20px;">
+							<li>Log in immediately and change your password in Account Settings.</li>
+							<li>If you didn\'t request this, please secure your account.</li>
+						</ul>
+						
+						<a href="' . htmlspecialchars($loginLink) . '" style="display: inline-block; background-color: #4a6bff; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; margin: 15px 0;">Log In Now</a>
+						
+						<p>For security reasons, do not share this email, username or password with anyone.</p>
+						<p>Best regards,<br>The ' . htmlspecialchars($appName) . ' Team</p>
+					</div>
+				</body>
+				</html>';
+
+				// Update the user's password in the database
+				$hashedPassword = password_hash($temporaryPassword, PASSWORD_DEFAULT);
+				$this->coreModel->updatepassword($email, $hashedPassword);
+			
+				//send email
+				$send = $this->coreModel->sendmail($email,$userName,$emailTemplate,$subject);
+
+				if ($send) {
+					return ["status" => true, "message" => "Password reset was successful, A temporary password has just been sent to your email"];
+				} else {
+					return ["status" => false, "message" => "Failed to send email"];
+				}
+			}
+
 			public function accountConfirmation(){
 				try {
 					$requiredFields = ['username'];

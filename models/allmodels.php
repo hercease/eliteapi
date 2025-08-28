@@ -127,6 +127,13 @@ class CoreModels {
 
 	}
 
+	public function updatepassword($email, $password) {
+        $stmt = $this->db->prepare("UPDATE members SET password = ? WHERE email = ?");
+        $stmt->bind_param("ss", $password, $email);
+        $stmt->execute();
+        return $stmt->insert_id;
+    }
+
 	public function fetchuservirtualwallet($email) {
 
 		$sql = "SELECT * FROM virtual_accounts WHERE email = ? OR acct_number = ?";
