@@ -2347,6 +2347,11 @@
 			public function saveSubscription(){
 
 				$username = $this->coreModel->decryptCookie($this->coreModel->sanitizeInput($_POST['username'] ?? ''));
+				$subscriptionJson = $_POST['subscription'] ?? '';
+				$subscription = json_decode($subscriptionJson, true);
+				$date = date('Y-m-d H:i:s');
+
+				error_log("Subscription data: " . json_encode($subscription));
 
 				$checkusername = $this->db->prepare("select username from push_subscriptions where username = ?");
                 $checkusername->bind_param("s", $username);
@@ -2356,11 +2361,7 @@
                     return;
                 }
 
-                    $subscriptionJson = $_POST['subscription'] ?? '';
-    				$subscription = json_decode($subscriptionJson, true);
-					$date = date('Y-m-d H:i:s');
-
-					error_log("Subscription data: " . json_encode($subscription));
+                    
 
 					if (!$subscription) {
 						echo json_encode(["status" => false, "message" => "Invalid subscription"]);
