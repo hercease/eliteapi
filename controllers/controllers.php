@@ -2360,6 +2360,8 @@
     				$subscription = json_decode($subscriptionJson, true);
 					$date = date('Y-m-d H:i:s');
 
+					error_log("Subscription data: " . json_encode($subscription));
+
 					if (!$subscription) {
 						echo json_encode(["status" => false, "message" => "Invalid subscription"]);
 						return;
