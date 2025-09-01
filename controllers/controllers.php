@@ -2361,11 +2361,8 @@
                     return;
                 }
 
-                    
-
 					if (!$subscription) {
-						echo json_encode(["status" => false, "message" => "Invalid subscription"]);
-						return;
+						return ["status" => false, "message" => "Invalid subscription"];
 					}
 
                     // Store in database
