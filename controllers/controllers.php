@@ -2375,7 +2375,7 @@
 						$date
                     ]);
 
-					return ["status" => true ];
+					return ["status" => true, "message" => json_encode($subscription)];
 
             }
 
